@@ -1,0 +1,82 @@
+﻿@page "/boardgames"
+@using Microsoft.EntityFrameworkCore
+@inject InventoryDbContext DbContext
+@rendermode InteractiveServer
+<PageTitle>Board Games</PageTitle>
+
+<h3>Board Games (@boardGames.Count(boardGame => !boardGame.IsDone))</h3>
+
+<ul>
+    @foreach (var boardGame in boardGames)
+    {
+	<li>
+	    <input type="checkbox" @bind="boardGame.IsDone" />
+	    @boardGame.Name
+	</li>
+    }
+</ul>
+
+<input placeholder="Board game name" @bind="newBoardGame.Name" />
+<button @onclick="AddBoardGame">Add board game</button>
+
+@if (boardGames == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var boardGame in boardGames)
+            {
+                <tr>
+                    <td>@boardGame.Name</td>
+                    <td>@boardGame.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<BoardGame> boardGames = new();
+    private BoardGame newBoardGame = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+	    boardGames = await DbContext.BoardGames.ToListAsync();
+    }
+
+    private async void AddBoardGame()
+    {
+	    if (!string.IsNullOrWhiteSpace(newBoardGame.Name))
+	    {
+	        DbContext.BoardGames.Add(newBoardGame);
+	        await DbContext.SaveChangesAsync();
+	        boardGames = await DbContext.BoardGames.ToListAsync();
+	        newBoardGame = new BoardGame();
+	    }
+    }
+
+    private async Task UpdateBoardGame(BoardGame boardGame)
+    {
+        DbContext.BoardGames.Update(boardGame);
+        await DbContext.SaveChangesAsync();
+    }
+
+    private async Task DeleteBoardGame(BoardGame boardGame)
+    {
+        DbContext.BoardGames.Remove(boardGame);
+        await DbContext.SaveChangesAsync();
+        boardGames = await DbContext.BoardGames.ToListAsync();
+    }
+
+    // <td><button @onclick="@(() => Edit(item))">Edit</button></td>
+    // void Edit(Item item) => Console.WriteLine($"Edit item: {item.Name}");
+}
