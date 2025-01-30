@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Inventory.Data;
 using Inventory.Components;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Interactive render mode Server
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Provide layout, components, forms, etc.
+builder.Services.AddMudServices();
 
 // Register DbContext with SQLite
 builder.Services.AddDbContext<InventoryDbContext>(options =>
