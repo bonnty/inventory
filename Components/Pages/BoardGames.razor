@@ -4,7 +4,7 @@
 @rendermode InteractiveServer
 <PageTitle>Board Games</PageTitle>
 
-<h3>Board Games (@boardGames.Count(boardGame => !boardGame.IsDone))</h3>
+<h3>Board Games (@boardGames.Count)</h3>
 
 <ul>
     @foreach (var boardGame in boardGames)
@@ -30,6 +30,9 @@ else
             <tr>
                 <th>Name</th>
                 <th>Description</th>
+                <th>Rating</th>
+                <th>Edit</th>
+                <th>Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -38,6 +41,9 @@ else
                 <tr>
                     <td>@boardGame.Name</td>
                     <td>@boardGame.Description</td>
+                    <td>@boardGame.Rating</td>
+                    <td><button @onclick="@(() => UpdateBoardGame(boardGame))">Edit</button></td>
+                    <td><button @onclick="@(() => DeleteBoardGame(boardGame))">Delete</button></td>
                 </tr>
             }
         </tbody>
@@ -47,6 +53,7 @@ else
 @code {
     private List<BoardGame> boardGames = new();
     private BoardGame newBoardGame = new();
+    void Edit(BoardGame boardGame) => Console.WriteLine($"Edit item: {boardGame.Name}");
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,7 +83,4 @@ else
         await DbContext.SaveChangesAsync();
         boardGames = await DbContext.BoardGames.ToListAsync();
     }
-
-    // <td><button @onclick="@(() => Edit(item))">Edit</button></td>
-    // void Edit(Item item) => Console.WriteLine($"Edit item: {item.Name}");
 }
