@@ -1,23 +1,16 @@
 ﻿@page "/boardgames"
 @using Microsoft.EntityFrameworkCore
 @inject InventoryDbContext DbContext
-@rendermode InteractiveServer
+@inject IDialogService DialogService
+
 <PageTitle>Board Games</PageTitle>
 
 <h3>Board Games (@boardGames.Count)</h3>
 
-<ul>
-    @foreach (var boardGame in boardGames)
-    {
-	<li>
-	    <input type="checkbox" @bind="boardGame.IsDone" />
-	    @boardGame.Name
-	</li>
-    }
-</ul>
-
+<hr>
 <input placeholder="Board game name" @bind="newBoardGame.Name" />
 <button @onclick="AddBoardGame">Add board game</button>
+<hr>
 
 @if (boardGames == null)
 {
@@ -41,9 +34,9 @@ else
                 <tr>
                     <td>@boardGame.Name</td>
                     <td>@boardGame.Description</td>
-                    <td>@boardGame.Rating</td>
-                    <td><button @onclick="@(() => UpdateBoardGame(boardGame))">Edit</button></td>
-                    <td><button @onclick="@(() => DeleteBoardGame(boardGame))">Delete</button></td>
+                    <td>@boardGame.Rating/@maxRating</td>
+                    <td><button @onclick="@((e) => EditBoardGameDialog(boardGame))">Edit</button></td>
+                    <td><button @onclick="@((e) => DeleteBoardGame(boardGame))">Delete</button></td>
                 </tr>
             }
         </tbody>
@@ -51,12 +44,13 @@ else
 }
 
 @code {
+    private int minRating, maxRating;
     private List<BoardGame> boardGames = new();
     private BoardGame newBoardGame = new();
-    void Edit(BoardGame boardGame) => Console.WriteLine($"Edit item: {boardGame.Name}");
-
     protected override async Task OnInitializedAsync()
     {
+        minRating = ValidationHelper.GetMinRange<BoardGame>("Rating");
+        maxRating = ValidationHelper.GetMaxRange<BoardGame>("Rating");
 	    boardGames = await DbContext.BoardGames.ToListAsync();
     }
 
@@ -70,6 +64,17 @@ else
 	        newBoardGame = new BoardGame();
 	    }
     }
+    private async Task EditBoardGameDialog(BoardGame boardGame) {
+        var options = new DialogOptions { CloseOnEscapeKey = true};
+        var parameters = new DialogParameters<EditBoardGame> { { x => x.BoardGame, boardGame }};
+
+        var dialog = await DialogService.ShowAsync<EditBoardGame>("Edit", parameters, options);
+        var result = await dialog.Result;  
+        if (!result.Canceled)
+        { 
+            UpdateBoardGame((BoardGame)result.Data);
+        }
+    } 
 
     private async Task UpdateBoardGame(BoardGame boardGame)
     {

@@ -1,0 +1,44 @@
+@inject ISnackbar Snackbar
+
+<style>
+InputText {
+    border: 10px solid #ccc;
+}
+</style>
+<MudDialog Style="height: 500px; width: 500px;">
+    <TitleContent>
+        <h4>You are editing <b>@BoardGame.Name</b></h4>
+        <hr>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="BoardGame.Name" Label="Name"/>
+        <MudTextField @bind-Value="BoardGame.Description" Label="Description"/>
+        <MudNumericField Min="@minRating" Max="@maxRating" @bind-Value="BoardGame.Rating" Label="Rating"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private int minRating, maxRating;
+    protected override void OnInitialized()
+    {
+        minRating = ValidationHelper.GetMinRange<BoardGame>("Rating");
+        maxRating = ValidationHelper.GetMaxRange<BoardGame>("Rating");
+    }
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit() {
+        Snackbar.Add("Board Game Edited", Severity.Success);
+        Console.WriteLine(BoardGame.Description);
+        MudDialog.Close(DialogResult.Ok(BoardGame));
+    }
+    [Parameter]
+    public BoardGame BoardGame { get; set; } = new BoardGame();
+}
