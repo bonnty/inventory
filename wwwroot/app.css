@@ -2,6 +2,22 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.icons-nav {
+    display: inline-block;
+    background-size: cover;
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+
+    &.inventory{
+        background-image: url("Icons/inventory.png");
+    }
+
+    &.boardgame{
+        background-image: url("Icons/dices.png");
+    }
+}
+
 a, .btn-link {
     color: #006bb7;
 }
