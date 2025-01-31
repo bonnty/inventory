@@ -8,8 +8,12 @@
 <h3>Board Games (@boardGames.Count)</h3>
 
 <hr>
-<input placeholder="Board game name" @bind="newBoardGame.Name" />
-<button @onclick="AddBoardGame">Add board game</button>
+<EditForm Model="newBoardGame" OnValidSubmit="AddBoardGame">
+    <input placeholder="Board game name" @bind="newBoardGame.Name" />
+    <input placeholder="Board game description" @bind="newBoardGame.Description"/>
+    <input type="number" placeholder="0" min="@minRating" max="@maxRating" @bind="newBoardGame.Rating"/>
+    <input type="submit">
+</EditForm>
 <hr>
 
 @if (boardGames == null)
@@ -56,7 +60,7 @@ else
 
     private async void AddBoardGame()
     {
-	    if (!string.IsNullOrWhiteSpace(newBoardGame.Name))
+        	    if (!string.IsNullOrWhiteSpace(newBoardGame.Name))
 	    {
 	        DbContext.BoardGames.Add(newBoardGame);
 	        await DbContext.SaveChangesAsync();
