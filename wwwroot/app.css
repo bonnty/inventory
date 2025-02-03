@@ -18,6 +18,15 @@ html, body {
     }
 }
 
+.inline-form {
+    display: flex;
+    input {
+        flex-grow: 1;
+        padding-left: 1px;
+        margin-right: 2px;
+    }
+}
+
 a, .btn-link {
     color: #006bb7;
 }

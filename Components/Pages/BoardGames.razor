@@ -8,11 +8,11 @@
 <h3>Board Games (@boardGames.Count)</h3>
 
 <hr>
-<EditForm Model="newBoardGame" OnValidSubmit="AddBoardGame">
-    <input placeholder="Board game name" @bind="newBoardGame.Name" />
-    <input placeholder="Board game description" @bind="newBoardGame.Description"/>
-    <input type="number" placeholder="0" min="@minRating" max="@maxRating" @bind="newBoardGame.Rating"/>
-    <input type="submit">
+<EditForm class="inline-form" Model="newBoardGame" OnValidSubmit="AddBoardGame">
+    <input placeholder="Board game name" @bind="newBoardGame.Name" required/>
+    <input placeholder="Board game description" @bind="newBoardGame.Description" required/>
+    <input type="number" placeholder="Rating" min="@minRating" max="@maxRating" @bind="newBoardGame.Rating" required/>
+    <input type="submit" value="Add" class="mud-button-root mud-button mud-button-text mud-button-text-default mud-button-text-size-medium mud-ripple">
 </EditForm>
 <hr>
 
@@ -47,7 +47,9 @@ else
     </table>
 }
 
+
 @code {
+    public int? test {get; set;}
     private int minRating, maxRating;
     private List<BoardGame> boardGames = new();
     private BoardGame newBoardGame = new();
