@@ -9,6 +9,5 @@ namespace Inventory.Models {
 
         [Range(0, 10)]
         public int? Rating { get; set; }
-        public bool IsDone { get; set; }
     }
 }
