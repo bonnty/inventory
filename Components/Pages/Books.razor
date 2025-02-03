@@ -1,0 +1,99 @@
+﻿@page "/books"
+@using Microsoft.EntityFrameworkCore
+@inject InventoryDbContext DbContext
+@inject IDialogService DialogService
+
+<PageTitle>Books</PageTitle>
+
+<h3>Books (@books.Count)</h3>
+
+<hr>
+<EditForm class="inline-form" Model="newBook" OnValidSubmit="AddBook">
+    <input placeholder="Book Title" @bind="newBook.Title" required/>
+    <input placeholder="Book Summary" @bind="newBook.Summary" required/>
+    <input placeholder="Book Author" @bind="newBook.Author" required/>
+    <input type="number" placeholder="Rating" min="@minRating" max="@maxRating" @bind="newBook.Rating" required/>
+    <input type="submit" value="Add" class="mud-button-root mud-button mud-button-text mud-button-text-default mud-button-text-size-medium mud-ripple">
+</EditForm>
+<hr>
+
+@if (books == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Summary</th>
+                <th>Author</th>
+                <th>Rating</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Title</td>
+                    <td>@book.Summary</td>
+                    <td>@book.Author</td>
+                    <td>@book.Rating/@maxRating</td>
+                    <td><button @onclick="@((e) => EditBookDialog(book))">Edit</button></td>
+                    <td><button @onclick="@((e) => DeleteBook(book))">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private int minRating, maxRating;
+    private List<Book> books = new();
+    private Book newBook = new();
+    protected override async Task OnInitializedAsync()
+    {
+        minRating = ValidationHelper.GetMinRange<Book>("Rating");
+        maxRating = ValidationHelper.GetMaxRange<Book>("Rating");
+	    books = await DbContext.Books.ToListAsync();
+    }
+
+    private async void AddBook()
+    {
+        if (!string.IsNullOrWhiteSpace(newBook.Title))
+	    {
+	        DbContext.Books.Add(newBook);
+	        await DbContext.SaveChangesAsync();
+	        books = await DbContext.Books.ToListAsync();
+	        newBook = new Book();
+	    }
+    }
+    private async Task EditBookDialog(Book book) {
+        var options = new DialogOptions { CloseOnEscapeKey = true, BackdropClick=false};
+        var parameters = new DialogParameters<EditBook> { { x => x.Book, book}};
+
+        var dialog = await DialogService.ShowAsync<EditBook>("Edit", parameters, options);
+        var result = await dialog.Result;  
+        if (!result.Canceled)
+        { 
+            UpdateBook((Book)result.Data);
+        }
+    } 
+
+    private async Task UpdateBook(Book book)
+    {
+        DbContext.Books.Update(book);
+        await DbContext.SaveChangesAsync();
+    }
+
+    private async Task DeleteBook(Book book)
+    {
+        DbContext.Books.Remove(book);
+        await DbContext.SaveChangesAsync();
+        books = await DbContext.Books.ToListAsync();
+    }
+}

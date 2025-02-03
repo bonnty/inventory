@@ -8,5 +8,6 @@ namespace Inventory.Data
     	public InventoryDbContext (DbContextOptions<InventoryDbContext> options): base(options) {}
     
     	public DbSet<BoardGame> BoardGames { get; set; }
+        public DbSet<Book> Books { get; set; }
     }
 }
