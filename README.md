@@ -1,4 +1,4 @@
-## Inventory web application
+## Inventory web application
 
 Blazor app => interactive server mode  
 Using :
