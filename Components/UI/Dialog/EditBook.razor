@@ -1,39 +1,41 @@
 @inject ISnackbar Snackbar
+@using FluentValidation
 
 <style>
 InputText {
     border: 10px solid #ccc;
 }
+
 </style>
-<MudForm @ref="form">
+<MudForm @ref="form" Model="@deepCopyBook" Validation="@(bookValidator.ValidateValue)" ValidationDelay="0">
     <MudDialog Style="height: 500px; width: 500px;">
         <TitleContent>
             <h4>You are editing <b>@Book.Title</b></h4>
             <hr>
         </TitleContent>
         <DialogContent>
-            <MudTextField @bind-Value="deepCopyBook.Title" Label="Title" Required="true"/>
-            <MudTextField @bind-Value="deepCopyBook.Summary" Label="Summary" Required="true"/>
-            <MudTextField @bind-Value="deepCopyBook.Author" Label="Author" Required="true"/>
-            <MudNumericField Min="@minRating" Max="@maxRating" @bind-Value="deepCopyBook.Rating" Label="Rating" Required="true"/>
+            <MudTextField @bind-Value="deepCopyBook.Title" For="@(() => deepCopyBook.Title)" Label="Title" Immediate="true"/>
+            <MudTextField @bind-Value="deepCopyBook.Summary" For="@(() => deepCopyBook.Summary)" Label="Summary" Immediate="true"/>
+            <MudTextField @bind-Value="deepCopyBook.Author" For="@(() => deepCopyBook.Author)" Label="Author" Immediate="true"/>
+            <MudNumericField @bind-Value="deepCopyBook.Rating" For="@(() => deepCopyBook.Rating)" Label="Rating" Immediate="true"/>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="Cancel">Cancel</MudButton>
-            <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+            <MudButton Color="Color.Primary" OnClick="@(async () => await Submit())">Ok</MudButton>
         </DialogActions>
     </MudDialog>
 </MudForm>
 
 @code {
     MudForm form;
-    private int minRating, maxRating;
+
+    BookModelFluentValidator bookValidator = new BookModelFluentValidator();
+
 
     // Make a deep copy to not visualy change the passed board game
     private Book deepCopyBook;
     protected override void OnInitialized()
     {
-        minRating = ValidationHelper.GetMinRange<Book>("Rating");
-        maxRating = ValidationHelper.GetMaxRange<Book>("Rating");
         deepCopyBook = ObjectHelper.DeepCopy<Book>(Book);
     }
 
@@ -41,20 +43,20 @@ InputText {
     private IMudDialogInstance MudDialog { get; set; } = null;
 
     private void Cancel() {
-        Snackbar.Add("Book not edited", Severity.Warning);
+        Snackbar.Add("Book not edited", MudBlazor.Severity.Warning);
         MudDialog.Cancel();
     }
-    private void Submit() {
+    private async Task Submit() {
+        await form.Validate(); 
         if(form.IsValid) {
             // now the board game field are valid, copy them back
             Book.Summary = deepCopyBook.Summary;
             Book.Rating = deepCopyBook.Rating;
             Book.Title = deepCopyBook.Title;
             Book.Author = deepCopyBook.Author;
-            Snackbar.Add("Book Edited", Severity.Success);
+            Snackbar.Add("Book Edited", MudBlazor.Severity.Success);
             MudDialog.Close(DialogResult.Ok(Book));
         }
-        form.Validate();
     }
     [Parameter]
     public Book Book { get; set; } = new Book();
