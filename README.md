@@ -7,3 +7,4 @@ Using :
 - Razor  
 - MudBlazor  
 - Fluent Api  
+- SQLite
