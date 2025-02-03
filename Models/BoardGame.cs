@@ -8,7 +8,7 @@ namespace Inventory.Models {
         public string Description { get; set; } = string.Empty;
 
         [Range(0, 10)]
-        public int Rating { get; set; }
+        public int? Rating { get; set; }
         public bool IsDone { get; set; }
     }
 }
