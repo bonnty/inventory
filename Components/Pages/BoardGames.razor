@@ -49,7 +49,6 @@ else
 
 
 @code {
-    public int? test {get; set;}
     private int minRating, maxRating;
     private List<BoardGame> boardGames = new();
     private BoardGame newBoardGame = new();
@@ -62,7 +61,7 @@ else
 
     private async void AddBoardGame()
     {
-        	    if (!string.IsNullOrWhiteSpace(newBoardGame.Name))
+        if (!string.IsNullOrWhiteSpace(newBoardGame.Name))
 	    {
 	        DbContext.BoardGames.Add(newBoardGame);
 	        await DbContext.SaveChangesAsync();
@@ -71,7 +70,7 @@ else
 	    }
     }
     private async Task EditBoardGameDialog(BoardGame boardGame) {
-        var options = new DialogOptions { CloseOnEscapeKey = true};
+        var options = new DialogOptions { CloseOnEscapeKey = true, BackdropClick=false};
         var parameters = new DialogParameters<EditBoardGame> { { x => x.BoardGame, boardGame }};
 
         var dialog = await DialogService.ShowAsync<EditBoardGame>("Edit", parameters, options);

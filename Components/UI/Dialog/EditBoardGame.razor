@@ -5,39 +5,54 @@ InputText {
     border: 10px solid #ccc;
 }
 </style>
-<MudDialog Style="height: 500px; width: 500px;">
-    <TitleContent>
-        <h4>You are editing <b>@BoardGame.Name</b></h4>
-        <hr>
-    </TitleContent>
-    <DialogContent>
-        <MudTextField @bind-Value="BoardGame.Name" Label="Name"/>
-        <MudTextField @bind-Value="BoardGame.Description" Label="Description"/>
-        <MudNumericField Min="@minRating" Max="@maxRating" @bind-Value="BoardGame.Rating" Label="Rating"/>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
-    </DialogActions>
-</MudDialog>
+<MudForm @ref="form">
+    <MudDialog Style="height: 500px; width: 500px;">
+        <TitleContent>
+            <h4>You are editing <b>@BoardGame.Name</b></h4>
+            <hr>
+        </TitleContent>
+        <DialogContent>
+            <MudTextField @bind-Value="deepCopyBoardGame.Name" Label="Name" Required="true"/>
+            <MudTextField @bind-Value="deepCopyBoardGame.Description" Label="Description" Required="true"/>
+            <MudNumericField Min="@minRating" Max="@maxRating" @bind-Value="deepCopyBoardGame.Rating" Label="Rating" Required="true"/>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+        </DialogActions>
+    </MudDialog>
+</MudForm>
 
 @code {
+    MudForm form;
     private int minRating, maxRating;
+
+    // Make a deep copy to not visualy change the passed board game
+    private BoardGame deepCopyBoardGame;
     protected override void OnInitialized()
     {
         minRating = ValidationHelper.GetMinRange<BoardGame>("Rating");
         maxRating = ValidationHelper.GetMaxRange<BoardGame>("Rating");
+        deepCopyBoardGame = ObjectHelper.DeepCopy<BoardGame>(BoardGame);
     }
 
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null;
 
-    private void Cancel() => MudDialog.Cancel();
-
+    private void Cancel() {
+        Snackbar.Add("Board Game not edited", Severity.Warning);
+        MudDialog.Cancel();
+    }
     private void Submit() {
-        Snackbar.Add("Board Game Edited", Severity.Success);
-        Console.WriteLine(BoardGame.Description);
-        MudDialog.Close(DialogResult.Ok(BoardGame));
+        if(form.IsValid) {
+            // now the board game field are valid, copy them back
+            BoardGame.Description = deepCopyBoardGame.Description;
+            BoardGame.Rating = deepCopyBoardGame.Rating;
+            BoardGame.Name = deepCopyBoardGame.Name;
+            Snackbar.Add("Board Game Edited", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(BoardGame));
+        }
+        form.Validate();
     }
     [Parameter]
     public BoardGame BoardGame { get; set; } = new BoardGame();
