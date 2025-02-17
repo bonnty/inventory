@@ -3,3 +3,4 @@ obj/
 inventory.db
 inventory.db-wal
 inventory.db-shm
+auth.db
