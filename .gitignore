@@ -4,3 +4,5 @@ inventory.db
 inventory.db-wal
 inventory.db-shm
 auth.db
+auth.db-shm
+auth.db-wal
