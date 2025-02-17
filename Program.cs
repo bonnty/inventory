@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Inventory.Data;
 using Inventory.Components;
 using MudBlazor.Services;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,22 @@ builder.Services.AddMudServices();
 // Register DbContext with SQLite
 builder.Services.AddDbContext<InventoryDbContext>(options =>
 		options.UseSqlite("Data Source=inventory.db"));
+
+// Use one db for authentication
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite("Data Source=auth.db"));
+
+// Add Identity with Cookie Authentication
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// Configure authentication using cookies
+builder.Services.ConfigureApplicationCookie(options => 
+{
+    options.LoginPath="/login";
+    options.AccessDeniedPath="/access-denied";
+});
 
 var app = builder.Build();
 
@@ -37,6 +54,9 @@ app.UseHttpsRedirection();
 
 app.MapStaticAssets();
 app.UseAntiforgery();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
